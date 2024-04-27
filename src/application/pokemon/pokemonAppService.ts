@@ -1,8 +1,8 @@
 import { Pokemon } from "domain/pokemon/pokemon";
-import {IPokemonAppService} from "../../applicationContracts/pokemon/iPokemonAppService";
 import {inject, injectable} from "tsyringe";
+import {BadRequestError, InternalServerError} from "routing-controllers";
+import {IPokemonAppService} from "../../applicationContracts/pokemon/iPokemonAppService";
 import {PokemonRepository} from "../../infrastructor/pokemon/pokemonRepositoy";
-import {BadRequest, InternalServerError} from "../../errors";
 
 
 @injectable()
@@ -32,13 +32,13 @@ export class PokemonAppService implements IPokemonAppService {
 
         const pokemonExists = await this.pokemonRepository.findOne({id: pokemon.id})
         if (pokemonExists){
-            throw new BadRequest('Pokemon already exists')
+            throw new BadRequestError('Pokemon already exists')
         }
 
         const evoIds = this.extractEvolutionIds(pokemon);
 
         if (this.hasDuplicates(evoIds)){
-            throw new BadRequest('Duplicated number found in evolution')
+            throw new BadRequestError('Duplicated number found in evolution')
         }
 
         const promises = evoIds.map(async id => {
@@ -50,7 +50,7 @@ export class PokemonAppService implements IPokemonAppService {
         const notExistingIds = evoIds.filter(id => !ids.includes(id))
 
         if (notExistingIds.length > 0){
-            throw new BadRequest(`Could not be created due evolutions dose not exist: ${notExistingIds.join(',')}`)
+            throw new BadRequestError(`Could not be created due evolutions dose not exist: ${notExistingIds.join(',')}`)
         }
 
 

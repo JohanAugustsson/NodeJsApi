@@ -1,97 +1,60 @@
-import {Controller} from "../controller";
-import {NextFunction, Request, Response, Router} from "express";
-import {inject} from "tsyringe";
-import {Pokemon} from "../../domain/pokemon/pokemon";
-import {PokemonRepository} from "../../infrastructor/pokemon/pokemonRepositoy";
-import {PokemonAppService} from "../../application/pokemon/pokemonAppService";
-import {BadRequest} from "../../errors";
+import {container} from "tsyringe";
+import {BadRequestError, Body, Get, JsonController, Param, Post, QueryParam} from "routing-controllers";
+import {IPokemon, Pokemon} from "../../domain/pokemon/pokemon";
+import {IPokemonAppService} from "../../applicationContracts/pokemon/iPokemonAppService";
 
 
-@Controller('/api/pokemon')
+@JsonController('/pokemon')
 export class PokemonControllers {
-    private router = Router();
+    private pokemonAppService: IPokemonAppService;
 
-    constructor(
-        @inject("IPokemonRepository") private readonly pokemonRepository: PokemonRepository,
-        @inject("IPokemonAppService") private readonly pokemonAppService: PokemonAppService,
-    ) {
-        this.initializeRoutes();
+    constructor() {
+        this.pokemonAppService = container.resolve('IPokemonAppService')
     }
 
-    private initializeRoutes() {
-        this.router.post('/', this.create.bind(this));
-        this.router.get('/', this.byType.bind(this));
-        this.router.get('/:id', this.byId.bind(this));
-        this.router.get('/by-name', this.byName.bind(this));
-        this.router.get('/random', this.random.bind(this));
-    }
+    @Post('/')
+    public async create(@Body() inputPokemon: IPokemon) {
 
-    public async create(req: Request, res: Response, next: NextFunction) {
-        const pokemonData = req.body;
-        const pokemon = Pokemon.create(pokemonData);
+        const pokemon = Pokemon.create(inputPokemon);
 
         if (!pokemon) {
-            next(new BadRequest('Bad request'))
-            return;
+            throw new BadRequestError('Invalid request data pokemon')
         }
 
-        let response;
-        try {
-            response = await this.pokemonAppService.create(pokemon)
-        } catch (e) {
-            next(e);
-        }
-        return res.status(200).send(response);
+        return await this.pokemonAppService.create(pokemon)
     }
 
-    public async byName(req: Request, res: Response): Promise<Response> {
-        return res.status(200).send('not implemented')
+    @Get('/byName')
+    public async byName() {
+        return 'not implemented'
     }
 
-    public async byType(req: Request, res: Response, next: NextFunction) {
-        const type = req.query.type ?? "";
-        const name = req.query.name ?? "";
-        const sort = req.query.sort ?? "";
-
-        if (typeof type !== "string" || typeof sort !== "string" || typeof name !== "string" ){
-            return next(new BadRequest('Bad request'))
-        }
-
-        let pokemonList: Pokemon[] = []
-
-        try {
-            pokemonList = await this.pokemonAppService.byType(type, name, sort);
-        } catch(e){
-            next(e)
-        }
-
-
-        return res.status(200).json(pokemonList);
-
+    @Get('/')
+    public async byType(
+        @QueryParam("type") type: string,
+        @QueryParam("name") name: string,
+        @QueryParam("sort") sort: string
+    ) {
+        return await this.pokemonAppService.byType(type, name, sort);
     }
 
-    public async random(req: Request, res: Response): Promise<Response> {
-        return res.status(200).send('not implemented')
+
+    @Get('/random')
+    public async random() {
+        return 'not implemented'
     }
 
-    public async byId(req: Request, res: Response, next: NextFunction) {
-        const id = req.params.id ?? "";
 
+
+    @Get('/:id')
+    async byId(@Param('id') id: string) {
         const idNumber = parseInt(id);
-        if (isNaN(idNumber)){
-            return next(new BadRequest('Invalid id'))
+
+        if (isNaN(idNumber)) {
+            throw new BadRequestError('Invalid id');
         }
 
-       try {
-           const pokemon = await this.pokemonAppService.byId(idNumber)
-           return res.status(200).json(pokemon);
-       } catch (e){
-           next(e)
-       }
-    }
-
-    public getRouter() {
-        return this.router;
+        return await this.pokemonAppService.byId(idNumber);
     }
 
 }
