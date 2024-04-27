@@ -12,6 +12,18 @@ export class PokemonAppService implements IPokemonAppService {
     ) {
     }
 
+    async weakAgainst(pokemon: Pokemon): Promise<Pokemon | null> {
+        const weakness = pokemon.weaknesses ?? []
+        const pokemonList = await this.pokemonRepository.filter(weakness, "", "")
+        if (pokemonList === null){
+            throw new InternalServerError('Something went wrong when try to fetch pokemon:s')
+        }
+
+        const filteredPokemon = pokemonList.filter(p => p.weaknesses.every(weakness => !pokemon.type.includes(weakness)))
+
+        return this.getRandomPokemon(filteredPokemon);
+    }
+
     async byName(name: string): Promise<Pokemon[]> {
         const response = await this.pokemonRepository.fuzzySearch(name)
         if(typeof response === 'string'){
@@ -28,7 +40,7 @@ export class PokemonAppService implements IPokemonAppService {
     }
 
     async byType(type: string, name: string, sort: string): Promise<Pokemon[]> {
-        const pokemonList = await this.pokemonRepository.filter(type, name, sort);
+        const pokemonList = await this.pokemonRepository.filter([type], name, sort);
 
         if (pokemonList === null){
             throw new InternalServerError('Something went wrong when try to fetch pokemon:s')
@@ -114,7 +126,13 @@ export class PokemonAppService implements IPokemonAppService {
         return pokemonList;
     }
 
-
+    private getRandomPokemon(pokemonList: Pokemon[]): Pokemon | null {
+        if (pokemonList.length === 0){
+            return null;
+        }
+        const randomIndex = Math.floor(Math.random() * pokemonList.length);
+        return pokemonList[randomIndex];
+    }
 }
 
 

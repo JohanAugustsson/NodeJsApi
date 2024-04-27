@@ -14,5 +14,5 @@ export interface IPokemonRepository {
 
     fuzzySearch(name: string): Promise<Pokemon[] | string>
 
-    filter(type: string, name: string, sort: string): Promise<Pokemon[] | null>
+    filter(type: string[], name: string, sort: string): Promise<Pokemon[] | null>
 }

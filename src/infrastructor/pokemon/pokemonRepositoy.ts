@@ -101,7 +101,6 @@ export class PokemonRepository implements IPokemonRepository {
             console.log(e);
             return [];
         }
-
     }
 
     public async getAll(): Promise<Pokemon[]> {
@@ -120,11 +119,11 @@ export class PokemonRepository implements IPokemonRepository {
     }
 
 
-    public async filter(type: string, name: string, sort: string): Promise<Pokemon[] | null> {
+    public async filter(type: string[], name: string, sort: string): Promise<Pokemon[] | null> {
         try {
             const query: Record<string, any> = {}
-            if (type !== "") {
-                const regex = new RegExp(type, 'i');
+            if (type.length > 0) {
+                const regex = new RegExp(type.join("|"), 'i');
                 query.type = {$regex: regex}
             }
             if (name !== "") {

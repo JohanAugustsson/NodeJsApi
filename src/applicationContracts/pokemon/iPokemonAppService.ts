@@ -8,4 +8,6 @@ export interface IPokemonAppService {
     byId(id: number): Promise<Pokemon[]>
 
     byName(name: string): Promise<Pokemon[]>
+
+    weakAgainst(pokemon: Pokemon): Promise<Pokemon | null>
 }

@@ -42,9 +42,21 @@ export class PokemonControllers {
     }
 
 
-    @Get('/random')
-    public async random() {
-        return 'not implemented'
+    @Post('/weak-against')
+    public async random(@Body() inputPokemon: IPokemon) {
+        const pokemon = Pokemon.create(inputPokemon);
+
+        if (!pokemon) {
+            throw new BadRequestError('Invalid request data pokemon')
+        }
+
+        const resp = await this.pokemonAppService.weakAgainst(pokemon)
+
+        if (resp === null){
+            return 'Could not find any strong opponent'
+        }
+
+        return resp;
     }
 
 
