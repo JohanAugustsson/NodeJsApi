@@ -12,5 +12,7 @@ export interface IPokemonRepository {
 
     getAll(): Promise<Pokemon[]>
 
-    byType(type: string, name: string, sort: string): Promise<Pokemon[] | null>
+    fuzzySearch(name: string): Promise<Pokemon[] | string>
+
+    filter(type: string, name: string, sort: string): Promise<Pokemon[] | null>
 }

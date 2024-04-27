@@ -25,8 +25,11 @@ export class PokemonControllers {
     }
 
     @Get('/byName')
-    public async byName() {
-        return 'not implemented'
+    public async byName(@QueryParam('name') name: string) {
+        if (name?.length < 3){
+            throw new BadRequestError('Name must be at least 3 char');
+        }
+        return await this.pokemonAppService.byName(name)
     }
 
     @Get('/')
@@ -43,7 +46,6 @@ export class PokemonControllers {
     public async random() {
         return 'not implemented'
     }
-
 
 
     @Get('/:id')

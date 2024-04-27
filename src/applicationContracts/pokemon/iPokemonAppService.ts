@@ -6,4 +6,6 @@ export interface IPokemonAppService {
     byType(type: string, name: string, sort: string): Promise<Pokemon[]>
 
     byId(id: number): Promise<Pokemon[]>
+
+    byName(name: string): Promise<Pokemon[]>
 }

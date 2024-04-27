@@ -12,6 +12,15 @@ export class PokemonAppService implements IPokemonAppService {
     ) {
     }
 
+    async byName(name: string): Promise<Pokemon[]> {
+        const response = await this.pokemonRepository.fuzzySearch(name)
+        if(typeof response === 'string'){
+            throw new InternalServerError(response)
+        }
+
+        return response;
+    }
+
     async byId(id: number): Promise<Pokemon[]> {
         const pokemonList = await this.getByIdIncludeEvolution([Number(id)])
 
@@ -19,7 +28,7 @@ export class PokemonAppService implements IPokemonAppService {
     }
 
     async byType(type: string, name: string, sort: string): Promise<Pokemon[]> {
-        const pokemonList = await this.pokemonRepository.byType(type, name, sort);
+        const pokemonList = await this.pokemonRepository.filter(type, name, sort);
 
         if (pokemonList === null){
             throw new InternalServerError('Something went wrong when try to fetch pokemon:s')
