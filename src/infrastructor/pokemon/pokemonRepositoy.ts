@@ -1,18 +1,27 @@
 import {Collection} from "mongodb";
 import {Pokemon} from "../../domain/pokemon/pokemon";
-import {mongoConnection} from "../db";
+import {inject, injectable} from "tsyringe";
+import {IPokemonRepository} from "./iPokemonRepository";
+import {IMongoDb} from "../mongoDb";
 
-export class PokemonRepository {
-    collection: Collection<Pokemon> | null
-    collectionName: string = 'pokemon'
+@injectable()
+export class PokemonRepository implements IPokemonRepository {
+    private readonly collectionName: string = 'pokemon'
+    constructor(@inject("IMongoDb") private mongoDb: IMongoDb) {}
 
-    constructor() {
-        this.collection = mongoConnection.db?.collection<Pokemon>(this.collectionName) ?? null;
+    private async db(): Promise<Collection<any> | undefined>{
+        return await this.mongoDb.getCollection(this.collectionName)
     }
 
     public async create(pokemon: Pokemon) : Promise<boolean>{
         try {
-            await this.collection?.insertOne(pokemon)
+            const db = await this.db()
+            if (!db) {
+                console.error('Database connection not available.');
+                return false;
+            }
+
+            await db.insertOne(pokemon)
             return true
         } catch (e) {
             console.log('Could not create pokemon')
@@ -23,7 +32,13 @@ export class PokemonRepository {
 
     public async findOne(criteria: Record<string, string | number>): Promise<Pokemon | null> {
         try {
-            const pokemonRaw = await this.collection?.findOne(criteria)
+            const db = await this.db()
+            if (!db) {
+                console.error('Database connection not available.');
+                return null;
+            }
+
+            const pokemonRaw = await db?.findOne(criteria)
             return Pokemon.create(pokemonRaw);
         } catch (e)
         {
@@ -35,7 +50,13 @@ export class PokemonRepository {
 
     public async byId(id: number): Promise<Pokemon | null> {
         try {
-            const pokemonRaw = await this.collection?.findOne({ id });
+            const db = await this.db()
+            if (!db) {
+                console.error('Database connection not available.');
+                return null;
+            }
+
+            const pokemonRaw = await db.findOne({ id });
             return Pokemon.create(pokemonRaw);
         } catch (e)
         {
@@ -47,8 +68,13 @@ export class PokemonRepository {
 
     public async byIds(ids: number[]): Promise<Pokemon[]> {
         try {
-            const resp = await this.collection?.find({ id: { $in: ids } }).toArray();
+            const db = await this.db()
+            if (!db) {
+                console.error('Database connection not available.');
+                return [];
+            }
 
+            const resp =  await db?.find({ id: { $in: ids } }).toArray();
             if (Array.isArray(resp)){
                 const a = resp.map(p => Pokemon.create(p))
                 if (a == null){
@@ -68,8 +94,12 @@ export class PokemonRepository {
 
     public async getAll(): Promise<Pokemon[]>{
         try {
-
-            const resp = await this.collection?.find().sort('name').toArray()
+            const db = await this.db()
+            if (!db) {
+                console.error('Database connection not available.');
+                return [];
+            }
+            const resp = await db?.find().sort('name').toArray()
 
             if (Array.isArray(resp)){
                 const a = resp.map(p => Pokemon.create(p))
@@ -102,8 +132,12 @@ export class PokemonRepository {
 
             const sortBy = sort !== "" ? sort : "id";
 
-
-            const resp = await this.collection?.find(query).sort(sortBy).toArray()
+            const db = await this.db()
+            if (!db) {
+                console.error('Database connection not available.');
+                return null;
+            }
+            const resp = await db.find(query).sort(sortBy).toArray()
 
             if (Array.isArray(resp)){
                 const a = resp.map(p => Pokemon.create(p))
@@ -118,8 +152,6 @@ export class PokemonRepository {
             console.log(e);
             return null;
         }
-
     }
-
 }
 

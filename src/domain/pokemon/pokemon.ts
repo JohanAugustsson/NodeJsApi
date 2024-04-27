@@ -1,4 +1,4 @@
-import {pokemonSchema} from "./pokemon-schema";
+import {pokemonSchema} from "./pokemonSchema";
 
 export class Evolution {
     num: string;
