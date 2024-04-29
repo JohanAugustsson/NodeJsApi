@@ -1,6 +1,4 @@
-import {inputPokemonSchema, pokemonSchema} from "./pokemonSchema";
-import {ZodError} from "zod";
-
+import {pokemonSchema} from "./pokemonSchema";
 
 export class Evolution {
     num: string;
