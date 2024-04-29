@@ -1,4 +1,6 @@
-import {pokemonSchema} from "./pokemonSchema";
+import {inputPokemonSchema, pokemonSchema} from "./pokemonSchema";
+import {ZodError} from "zod";
+
 
 export class Evolution {
     num: string;
@@ -15,17 +17,18 @@ export interface IPokemon {
     name: string
     img: string;
     type: string[];
-    height: string; // "0.71 m"
-    weight: string; // "6.9 kg",
+    height: number;
+    weight: number;
     candy: string; // "Bulbasaur Candy",
     candy_count: number; // 25,
-    egg: string; // "2 km",
+    egg: number; // "2 km",
     spawn_chance: number; // 0.69,
     avg_spawns: number; // 69,
-    spawn_time: string; // "20:00";
-    multipliers: number[];
+    spawn_time: number; // "20:00";
+    multipliers: number[] | null;
     weaknesses: string[];
-    next_evolution: Evolution[]
+    next_evolution?: Evolution[]
+    prev_evolution?: Evolution[]
 }
 
 export class Pokemon implements IPokemon{
@@ -34,20 +37,20 @@ export class Pokemon implements IPokemon{
     name: string
     img: string;
     type: string[];
-    height: string; // "0.71 m"
-    weight: string; // "6.9 kg",
-    candy: string; // "Bulbasaur Candy",
-    candy_count: number; // 25,
-    egg: string; // "2 km",
-    spawn_chance: number; // 0.69,
-    avg_spawns: number; // 69,
-    spawn_time: string; // "20:00";
+    height: number;
+    weight: number;
+    candy: string;
+    candy_count: number;
+    egg: number;
+    spawn_chance: number;
+    avg_spawns: number;
+    spawn_time: number;
     multipliers: number[];
     weaknesses: string[];
     next_evolution: Evolution[]
     prev_evolution: Evolution[]
 
-    private constructor(data: any) {
+    constructor(data: any) {
         this.id = data.id
         this.num = data.num
         this.name = data.name
@@ -63,8 +66,8 @@ export class Pokemon implements IPokemon{
         this.spawn_time = data.spawn_time
         this.multipliers = data.multipliers
         this.weaknesses = data.weaknesses
-        this.next_evolution = data.next_evolution
-        this.prev_evolution = data.prev_evolution
+        this.next_evolution = data.next_evolution ?? []
+        this.prev_evolution = data.prev_evolution ?? []
     }
 
     static create(data: any): Pokemon | null {
@@ -72,9 +75,8 @@ export class Pokemon implements IPokemon{
            const validData= pokemonSchema.parse(data)
            return new Pokemon(validData)
        } catch (error){
-           console.log('Unable to parse data', error)
+           console.log(`Unable to parse pokemon from database id: ${data?.id}`)
            return null;
        }
     }
 }
-
