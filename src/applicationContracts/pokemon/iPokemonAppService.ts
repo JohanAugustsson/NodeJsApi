@@ -1,13 +1,17 @@
-import {Pokemon} from "../../domain/pokemon/pokemon";
+import {PokemonDto} from "./pokemonDto";
 
 export interface IPokemonAppService {
-    create(pokemon: Pokemon): Promise<Pokemon>
+    create(pokemon: PokemonDto): Promise<PokemonDto>
 
-    byType(type: string, name: string, sort: string): Promise<Pokemon[]>
+    mock(pokemon: PokemonDto[]): Promise<void>
 
-    byId(id: number): Promise<Pokemon[]>
+    dropCollection(): Promise<boolean>
 
-    byName(name: string): Promise<Pokemon[]>
+    byType(type: string, name: string, sort: string): Promise<PokemonDto[]>
 
-    weakAgainst(pokemon: Pokemon): Promise<Pokemon | null>
+    byId(id: number): Promise<PokemonDto[]>
+
+    byName(name: string): Promise<PokemonDto[]>
+
+    weakAgainst(pokemon: PokemonDto): Promise<PokemonDto | null>
 }

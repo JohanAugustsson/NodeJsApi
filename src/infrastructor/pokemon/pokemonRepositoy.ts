@@ -51,6 +51,38 @@ export class PokemonRepository implements IPokemonRepository {
         }
     }
 
+    public async dropCollection(): Promise<boolean> {
+        try {
+            const db = await this.db()
+            if (!db) {
+                console.error('Database connection not available.');
+                return false;
+            }
+
+            await db.drop()
+            return true
+        } catch (e) {
+            console.log('Could not drop database')
+            return false;
+        }
+    }
+
+    public async insertMany(pokemon: Pokemon[]): Promise<boolean> {
+        try {
+            const db = await this.db()
+            if (!db) {
+                console.error('Database connection not available.');
+                return false;
+            }
+
+            await db.insertMany(pokemon)
+            return true
+        } catch (e) {
+            console.log('Could not create pokemon')
+            return false;
+        }
+    }
+
 
     public async findOne(criteria: Record<string, string | number>): Promise<Pokemon | null> {
         try {

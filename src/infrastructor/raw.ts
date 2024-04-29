@@ -1,5 +1,6 @@
-export const mocked = {
-  "pokemon": [
+import {IPokemonDto} from "../applicationContracts/pokemon/pokemonDto";
+
+export const mockedPokemonList: IPokemonDto[] = [
     {
       "id": 1,
       "num": "001",
@@ -4619,4 +4620,3 @@ export const mocked = {
       ]
     }
   ]
-}

@@ -4,6 +4,8 @@ import {Pokemon} from "../../domain/pokemon/pokemon";
 export interface IPokemonRepository {
     create(pokemon: Pokemon): Promise<boolean>
 
+    dropCollection(): Promise<boolean>
+
     findOne(criteria: Record<string, string | number>): Promise<Pokemon | null>
 
     byId(id: number): Promise<Pokemon | null>

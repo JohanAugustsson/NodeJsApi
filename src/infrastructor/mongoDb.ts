@@ -9,7 +9,7 @@ export interface IMongoDb {
 
 @singleton()
 export class MongoDb implements IMongoDb {
-    private readonly mongoURI: string = 'mongodb://localhost:27017/pokemon'
+    private readonly mongoURI: string = 'mongodb://mongoDb:27017/pokemon'
     private mongoClient: MongoClient | null = null
     private db: Db | null = null;
 
