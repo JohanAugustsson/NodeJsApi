@@ -13,10 +13,11 @@ I wanted to add annotation on controllers, so I picked routing-controllers packa
 Clone the repository then run
 ```docker-compose up --build```
 
+Then open swagger ui: ```http://localhost:3000/api-docs```
+
 To stop:
 ```docker-compose down```
 
-Then open swagger ui: ```http://localhost:3000/api-docs```
 
 
 ### Spent time
