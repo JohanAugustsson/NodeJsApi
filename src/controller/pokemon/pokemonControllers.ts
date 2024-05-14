@@ -6,6 +6,7 @@ import {
     Get,
     HttpCode,
     JsonController,
+    NotFoundError,
     Param,
     Post,
     QueryParam
@@ -113,7 +114,13 @@ export class PokemonControllers {
             throw new BadRequestError('Invalid id');
         }
 
-        return await this.pokemonAppService.byId(idNumber);
+        const pokemonList = await this.pokemonAppService.byId(idNumber);
+
+        if (pokemonList.length === 0){
+            throw new NotFoundError('No Pokemon found with the given id');
+        }
+
+        return pokemonList;
     }
 
 }
